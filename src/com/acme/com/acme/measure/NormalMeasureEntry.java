@@ -16,4 +16,9 @@ public class NormalMeasureEntry extends AbstractMeasureEntry{
     public int getCount() {
         return 1;
     }
+
+    @Override
+    public int getErrorCount() {
+        return 0;
+    }
 }

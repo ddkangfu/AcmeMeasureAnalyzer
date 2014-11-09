@@ -15,4 +15,9 @@ public class ErrorMeasureEntry extends AbstractMeasureEntry {
     public int getCount() {
         return 0;
     }
+
+    @Override
+    public int getErrorCount() {
+        return 1;
+    }
 }

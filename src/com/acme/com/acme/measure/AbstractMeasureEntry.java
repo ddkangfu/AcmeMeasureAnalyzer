@@ -45,6 +45,8 @@ public abstract class AbstractMeasureEntry {
 
     public abstract int getCount();
 
+    public abstract int getErrorCount();
+
     @Override
     public String toString() {
         return stepName + "-" + measureName;
