@@ -70,8 +70,10 @@ public class CSVFileOperation {
                 for (String measureName : measureList) {
                     //System.out.println(stepName + "-" + measureName);
                     String cellName = stepName + "-" + measureName;
-                    if (result.containsKey(cellName))
-                        sb.append(result.get(cellName).getAvgValue() + "," + result.get(cellName).getErrorCount() + ",");
+                    if (result.containsKey(cellName)) {
+                        String formatValue = String.format("%1$.4f", result.get(cellName).getAvgValue());
+                        sb.append(formatValue + "," + result.get(cellName).getErrorCount() + ",");
+                    }
                     else
                         sb.append("0,");
                 }
