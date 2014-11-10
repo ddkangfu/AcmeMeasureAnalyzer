@@ -2,6 +2,7 @@ package com.acme.com.acme.measure;
 
 
 public class MeasureEntryResultCell {
+        //implements Comparable<MeasureEntryResultCell>{
     protected String stepName;
     protected String measureName;
     //protected String cellName;
@@ -42,4 +43,14 @@ public class MeasureEntryResultCell {
     public String toString() {
         return stepName + "-" + measureName + "[" + this.getAvgValue() + ", " + this.getErrorCount() + "]";
     }
+
+//    @Override
+//    public int compareTo(MeasureEntryResultCell o) {
+//        if (this.errorCount > o.errorCount)
+//            return 1;
+//        else if (this.errorCount < o.errorCount)
+//            return -1;
+//        else
+//            return 0;
+//    }
 }

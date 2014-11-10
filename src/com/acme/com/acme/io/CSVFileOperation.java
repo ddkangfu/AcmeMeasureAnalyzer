@@ -1,10 +1,8 @@
 package com.acme.com.acme.io;
 
 
-import com.acme.com.acme.measure.AbstractMeasureEntry;
-import com.acme.com.acme.measure.ErrorMeasureEntry;
+import com.acme.com.acme.measure.ErrorCountItem;
 import com.acme.com.acme.measure.MeasureEntryResultCell;
-import com.acme.com.acme.measure.NormalMeasureEntry;
 
 import java.io.*;
 import java.util.*;
@@ -43,8 +41,31 @@ public class CSVFileOperation {
                 cellMap.get(cellName).add(value);
             }
 
+            Map<String, ErrorCountItem> error_count = new HashMap<String, ErrorCountItem>();
             for (Map.Entry<String, MeasureEntryResultCell> cell : cellMap.entrySet()) {
-                System.out.println(cell.getValue().toString());
+                //统计每列的错误数，以决定各列的排列顺序
+                for (String columnName : measureList) {
+                    if (cell.getKey().endsWith(columnName)) {
+                        int counter = cell.getValue().getErrorCount();
+                        ErrorCountItem errorCountItem;
+                        if (error_count.containsKey(columnName))
+                            errorCountItem = error_count.get(columnName);
+                        else{
+                            errorCountItem = new ErrorCountItem(columnName);
+                            error_count.put(columnName, errorCountItem);
+                        }
+                        errorCountItem.add(counter);
+                    }
+                }
+            }
+
+            ErrorCountItem[] errorCountArray = new ErrorCountItem[error_count.size()];
+            error_count.values().toArray(errorCountArray);
+
+            Arrays.sort(errorCountArray);
+
+            for (int i = errorCountArray.length - 1; i >= 0; i--) {
+                System.out.println(errorCountArray[i]);
             }
 
             return cellMap;
