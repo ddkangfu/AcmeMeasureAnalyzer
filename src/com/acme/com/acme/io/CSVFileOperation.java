@@ -9,7 +9,7 @@ import java.util.*;
 
 public class CSVFileOperation {
     public static final String[] stepList = {"Assembly", "Soldering", "Lathing", "Milling", "Grinding", "Forging", "Casting", "Clamping", "Punching", "Riveting"};
-    public static final String[] measureList = {"Temp", "STemp", "Humidity", "Duration"};
+    public static final String[] measureList = {"Temp", "Humidity", "STemp", "Duration"};
 
     public static Map<String, MeasureEntryResultCell> readCSVFile(String fileName) throws Exception {
         if (fileName == null || fileName.isEmpty()) {
@@ -41,38 +41,44 @@ public class CSVFileOperation {
                 cellMap.get(cellName).add(value);
             }
 
-            Map<String, ErrorCountItem> error_count = new HashMap<String, ErrorCountItem>();
-            for (Map.Entry<String, MeasureEntryResultCell> cell : cellMap.entrySet()) {
-                //统计每列的错误数，以决定各列的排列顺序
-                for (String columnName : measureList) {
-                    if (cell.getKey().endsWith(columnName)) {
-                        int counter = cell.getValue().getErrorCount();
-                        ErrorCountItem errorCountItem;
-                        if (error_count.containsKey(columnName))
-                            errorCountItem = error_count.get(columnName);
-                        else{
-                            errorCountItem = new ErrorCountItem(columnName);
-                            error_count.put(columnName, errorCountItem);
-                        }
-                        errorCountItem.add(counter);
-                    }
-                }
-            }
-
-            ErrorCountItem[] errorCountArray = new ErrorCountItem[error_count.size()];
-            error_count.values().toArray(errorCountArray);
-
-            Arrays.sort(errorCountArray);
-
-            for (int i = errorCountArray.length - 1; i >= 0; i--) {
-                System.out.println(errorCountArray[i]);
-            }
-
             return cellMap;
         } finally {
             if (br != null)
                 br.close();
         }
+    }
+
+    public static String[] getOrderedColumns(Map<String, MeasureEntryResultCell> cellMap) {
+        Map<String, ErrorCountItem> error_count = new HashMap<String, ErrorCountItem>();
+        for (Map.Entry<String, MeasureEntryResultCell> cell : cellMap.entrySet()) {
+            //统计每列的错误数，以决定各列的排列顺序
+            for (String columnName : measureList) {
+                if (cell.getKey().endsWith(columnName)) {
+                    int counter = cell.getValue().getErrorCount();
+                    ErrorCountItem errorCountItem;
+                    if (error_count.containsKey(columnName))
+                        errorCountItem = error_count.get(columnName);
+                    else{
+                        errorCountItem = new ErrorCountItem(columnName);
+                        error_count.put(columnName, errorCountItem);
+                    }
+                    errorCountItem.add(counter);
+                }
+            }
+        }
+
+        ErrorCountItem[] errorCountArray = new ErrorCountItem[error_count.size()];
+        error_count.values().toArray(errorCountArray);
+
+        Arrays.sort(errorCountArray);
+
+        String[] orderedColumns = new String[errorCountArray.length];
+        for (int i = errorCountArray.length - 1; i >= 0; i--) {
+            //System.out.println(errorCountArray[i]);
+            orderedColumns[errorCountArray.length - 1 - i] = errorCountArray[i].getMeasureName();
+        }
+
+        return orderedColumns;
     }
 
     public static void writeCSVFile(String fileName, Map<String, MeasureEntryResultCell> result) throws Exception {
@@ -85,18 +91,26 @@ public class CSVFileOperation {
         BufferedWriter bw = null;
         try {
             bw = new BufferedWriter(new FileWriter(sourceFile, false));
+            String[] orderedColumnNames = getOrderedColumns(result);
+            System.out.print("Production Step,\t");
+            for (String columnName : orderedColumnNames) {
+                System.out.print("Avg." + columnName + ",\t" + "Err." + columnName + ",\t");
+            }
+            System.out.print("\n");
+
             for (String stepName : stepList) {
                 bw.newLine();
                 StringBuffer sb = new StringBuffer();
-                for (String measureName : measureList) {
+                System.out.print(stepName + ",\t");
+                for (String measureName : orderedColumnNames) {
                     //System.out.println(stepName + "-" + measureName);
                     String cellName = stepName + "-" + measureName;
                     if (result.containsKey(cellName)) {
                         String formatValue = String.format("%1$.4f", result.get(cellName).getAvgValue());
-                        sb.append(formatValue + "," + result.get(cellName).getErrorCount() + ",");
+                        sb.append(formatValue + ",\t" + result.get(cellName).getErrorCount() + ",\t");
                     }
                     else
-                        sb.append("0,");
+                        sb.append("0.0000,");
                 }
                 String csvLine = sb.toString();
                 //bw.write(csvLine.substring(csvLine.length() - 1));

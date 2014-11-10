@@ -14,6 +14,10 @@ public class ErrorCountItem implements Comparable<ErrorCountItem> {
         this.count += inc;
     }
 
+    public String getMeasureName() {
+        return this.measureName;
+    }
+
     @Override
     public int compareTo(ErrorCountItem errorCountItem) {
         if (this.count > errorCountItem.count)
