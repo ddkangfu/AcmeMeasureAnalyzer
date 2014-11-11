@@ -100,7 +100,7 @@ public class CSVFileOperation {
 
             for (String stepName : stepList) {
                 bw.newLine();
-                StringBuffer sb = new StringBuffer();
+                StringBuilder sb = new StringBuilder();
                 System.out.print(stepName + ",\t");
                 for (String measureName : orderedColumnNames) {
                     //System.out.println(stepName + "-" + measureName);
