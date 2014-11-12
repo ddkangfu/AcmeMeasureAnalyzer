@@ -14,14 +14,16 @@ public class Acem {
     public static void main(String[] args) {
         //System.out.println(args.length);
         if (args.length == 0) {
-            System.out.println("usage: Acem <CSV File Name>.");
+            System.out.println("usage: Acem <CSV File Name> [--html | --csv].");
             return;
         }
         try {
             Map<String, MeasureCell> result = readCSVFile(args[0]);
             String[] orderedColumns = getOrderedColumnNames(result);
-            //outputToCSV(result, orderedColumns);
-            outputToHTML(result, orderedColumns);
+            if (args.length > 1 && args[1].equalsIgnoreCase("--html"))
+                outputToHTML(result, orderedColumns);
+            else
+                outputToCSV(result, orderedColumns);
         } catch(Exception ex) {
             ex.printStackTrace();
         }
