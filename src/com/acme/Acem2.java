@@ -44,3 +44,39 @@ public class Acem2 {
         }
     }
 }
+
+class MeasureCellInfo {
+    String stepName;
+    String measureName;
+    int normalCount;
+    int errorCount;
+    float sum;
+
+    public MeasureCellInfo(String stepName, String measureName) {
+        this.stepName = "";
+        this.measureName = "";
+        this.normalCount = 0;
+        this.errorCount = 0;
+        this.sum = 0.0f;
+    }
+
+    public void add(String value) throws NumberFormatException {
+        if (value.equalsIgnoreCase("ERROR")) {
+            errorCount++;
+        } else {
+            normalCount++;
+            this.sum += Float.parseFloat(value);
+        }
+    }
+
+    public int getErrorCount() {
+        return this.errorCount;
+    }
+
+    public float getAvgValue() {
+        if (normalCount == 0 || sum == 0)
+            return 0;
+        else
+            return sum / normalCount;
+    }
+}
