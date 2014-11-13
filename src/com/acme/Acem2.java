@@ -1,13 +1,16 @@
 //package com.acme;
 
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Acem2 {
+    static final String[] mesaures = {"Temp", "Humidity", "STemp", "Duration"};
+
+
     public static void main(String[] args) {
         if (args.length == 0) {
             System.out.println("Usage: Acem2 <CSV File> [--html|--csv]");
@@ -16,8 +19,13 @@ public class Acem2 {
 
         try {
             Map<String, MeasureCellInfo> result = readCSVFile(args[0]);
-            for (Map.Entry<String, MeasureCellInfo> entry : result.entrySet()) {
-                System.out.println(entry.getValue());
+            //for (Map.Entry<String, MeasureCellInfo> entry : result.entrySet()) {
+            //    System.out.println(entry.getValue());
+            //}
+            //for ()
+            String[] orderedColumns = getOrderedColumns(result);
+            for (String column : orderedColumns) {
+                System.out.println(column);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -57,6 +65,32 @@ public class Acem2 {
             if (br != null)
                 br.close();
         }
+    }
+
+    public static String[] getOrderedColumns(Map<String, MeasureCellInfo> result) {
+        Map<String, ColumnErrCounter> counter = new HashMap<String, ColumnErrCounter>();
+        for (Map.Entry<String, MeasureCellInfo> cell : result.entrySet()) {
+            for (String columnName : mesaures) {
+                if (cell.getKey().endsWith(columnName)) {
+                    ColumnErrCounter columnErrCounter = counter.get(columnName);
+                    if (columnErrCounter == null) {
+                        columnErrCounter = new ColumnErrCounter(columnName);
+                        counter.put(columnName, columnErrCounter);
+                    }
+                    columnErrCounter.add(cell.getValue().getErrorCount());
+                }
+            }
+        }
+
+        ColumnErrCounter[] columns = counter.values().toArray(new ColumnErrCounter[0]);
+        Arrays.sort(columns);
+
+        String[] orderedColumns = new String[columns.length];
+        for (int i = columns.length - 1; i >= 0; i--) {
+            orderedColumns[i] = columns[columns.length - 1 - i].getColumnName();
+        }
+
+        return orderedColumns;
     }
 }
 
@@ -113,8 +147,8 @@ class ColumnErrCounter implements Comparable<ColumnErrCounter> {
         errorCount += number;
     }
 
-    public int getErrorCount() {
-        return errorCount;
+    public String getColumnName() {
+        return columnName;
     }
 
     @Override
