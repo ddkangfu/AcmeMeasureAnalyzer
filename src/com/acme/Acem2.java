@@ -1,25 +1,30 @@
-package com.acme;
+//package com.acme;
 
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Acem2 {
-    public static void Main(String[] args) {
+    public static void main(String[] args) {
         if (args.length == 0) {
             System.out.println("Usage: Acem2 <CSV File> [--html|--csv]");
             return;
         }
 
         try {
-            readCSVFile(args[0]);
+            Map<String, MeasureCellInfo> result = readCSVFile(args[0]);
+            for (Map.Entry<String, MeasureCellInfo> entry : result.entrySet()) {
+                System.out.println(entry.getValue());
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
-    public static void readCSVFile(String fileName) throws Exception {
+    public static Map<String, MeasureCellInfo> readCSVFile(String fileName) throws Exception {
         if (fileName == null || fileName.isEmpty())
             throw new Exception("File Name is null or blank");
 
@@ -31,11 +36,21 @@ public class Acem2 {
         try {
             br = new BufferedReader(new FileReader(csvFile));
 
+            Map<String, MeasureCellInfo> result = new HashMap<String, MeasureCellInfo>();
+
             String line = null;
             while((line = br.readLine()) != null) {
                 String[] columns = line.split(",");
+                String cellName = columns[0].trim() + "-" + columns[1].trim();
 
+                MeasureCellInfo cell = result.get(cellName);
+                if (cell == null) {
+                    cell = new MeasureCellInfo(columns[0].trim(), columns[1].trim());
+                    result.put(cellName, cell);
+                }
+                cell.add(columns[2].trim());
             }
+            return result;
         } catch (Exception ex) {
             throw new Exception("Read CSV file error: " + ex.getMessage());
         } finally {
@@ -78,5 +93,10 @@ class MeasureCellInfo {
             return 0;
         else
             return sum / normalCount;
+    }
+
+    @Override
+    public String toString() {
+        return stepName + "-" + measureName + "=>" + getAvgValue() + "[" + getErrorCount() +  "]";
     }
 }
