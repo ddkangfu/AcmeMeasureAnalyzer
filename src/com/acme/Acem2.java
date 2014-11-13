@@ -100,3 +100,35 @@ class MeasureCellInfo {
         return stepName + "-" + measureName + "=>" + getAvgValue() + "[" + getErrorCount() +  "]";
     }
 }
+
+class ColumnErrCounter implements Comparable<ColumnErrCounter> {
+    String columnName;
+    int errorCount;
+
+    public ColumnErrCounter(String columnName) {
+        this.columnName = columnName;
+    }
+
+    public void add(int number) {
+        errorCount += number;
+    }
+
+    public int getErrorCount() {
+        return errorCount;
+    }
+
+    @Override
+    public int compareTo(ColumnErrCounter other) {
+        if (this.errorCount > other.errorCount)
+            return 1;
+        else if (this.errorCount < other.errorCount)
+            return -1;
+        else
+            return 0;
+    }
+
+    @Override
+    public String toString() {
+        return columnName + "[" + errorCount + "]";
+    }
+}
