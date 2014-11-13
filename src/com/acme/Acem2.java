@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Acem2 {
+    static final String[] steps = {"Assembly", "Soldering", "Lathing", "Milling", "Grinding",
+            "Forging", "Casting", "Clamping", "Punching", "Riveting"};
     static final String[] mesaures = {"Temp", "Humidity", "STemp", "Duration"};
 
 
@@ -19,14 +21,8 @@ public class Acem2 {
 
         try {
             Map<String, MeasureCellInfo> result = readCSVFile(args[0]);
-            //for (Map.Entry<String, MeasureCellInfo> entry : result.entrySet()) {
-            //    System.out.println(entry.getValue());
-            //}
-            //for ()
             String[] orderedColumns = getOrderedColumns(result);
-            for (String column : orderedColumns) {
-                System.out.println(column);
-            }
+            outputToCSV(result, orderedColumns);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -91,6 +87,29 @@ public class Acem2 {
         }
 
         return orderedColumns;
+    }
+
+    public static void outputToCSV(Map<String, MeasureCellInfo> result, String[] columns) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Production Step,");
+        for (String column : columns) {
+            sb.append("Avg." + column + "," + "Err." + column + ",");
+        }
+        System.out.println(sb.toString().substring(0, sb.toString().length() - 1));
+
+        for (String step : steps) {
+            sb = new StringBuilder();
+            sb.append(step + ",");
+            for (String column : columns) {
+                //System.out.print("Avg." + column + ",Err" + column + ",");
+                MeasureCellInfo cell = result.get(step + "-" + column);
+                if (cell != null)
+                    sb.append(cell.getAvgValue() + "," + cell.getErrorCount() + ",");
+                else
+                    sb.append("0,0,");
+            }
+            System.out.println(sb.toString().substring(0, sb.toString().length() - 1));
+        }
     }
 }
 
