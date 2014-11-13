@@ -1,4 +1,4 @@
-//package com.acme;
+package com.acme;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -22,7 +22,11 @@ public class Acem2 {
         try {
             Map<String, MeasureCellInfo> result = readCSVFile(args[0]);
             String[] orderedColumns = getOrderedColumns(result);
-            outputToCSV(result, orderedColumns);
+            if (args.length == 2 && args[1].equalsIgnoreCase("--html")) {
+                //TODO:实现html格式的输出。
+            } else {
+                outputToCSV(result, orderedColumns);
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
